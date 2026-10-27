@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define N 4
+
+void printBoard(int board[]) {
+    printf("State: [");
+    for (int i = 0; i < N; i++) {
+        printf("%d", board[i]);
+        if (i < N - 1) printf(", ");
+    }
+    printf("]\n");
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (board[j] == i)
+                printf(" Q ");
+            else
+                printf(" . ");
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+int calculateCost(int board[]) {
+    int attacks = 0;
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            if (board[i] == board[j]) {
+                attacks++;
+            }
+            if (abs(board[i] - board[j]) == abs(i - j)) {
+                attacks++;
+            }
+        }
+    }
+    return attacks;
+}
+
+void copyBoard(int dest[], int src[]) {
+    for (int i = 0; i < N; i++) {
+        dest[i] = src[i];
+    }
+}
+
+void hillClimbing() {
+    int current_board[N];
+    int next_board[N];
+    int step = 1;
+
+    for (int i = 0; i < N; i++) {
+        current_board[i] = rand() % N;
+    }
+
+    printf("--- INITIAL CONFIGURATION ---\n");
+    printBoard(current_board);
+
+    while (1) {
+        int current_cost = calculateCost(current_board);
+        printf("Step %d | Current Cost h = %d\n", step++, current_cost);
+
+        if (current_cost == 0) {
+            printf("--- GOAL CONFIGURATION FOUND ---\n");
+            printBoard(current_board);
+            return;
+        }
+
+        int best_cost = current_cost;
+        int found_better_neighbor = 0;
+        copyBoard(next_board, current_board);
+
+        for (int col = 0; col < N; col++) {
+            int original_row = current_board[col];
+
+            for (int row = 0; row < N; row++) {
+                if (row == original_row) continue;
+
+                current_board[col] = row;
+                int neighbor_cost = calculateCost(current_board);
+
+                if (neighbor_cost < best_cost) {
+                    best_cost = neighbor_cost;
+                    copyBoard(next_board, current_board);
+                    found_better_neighbor = 1;
+                }
+            }
+            current_board[col] = original_row;
+        }
+
+        if (!found_better_neighbor) {
+            printf("--- STUCK IN LOCAL MINIMUM / SHOULDER ---\n");
+            printBoard(current_board);
+            printf("Restarting with a new random configuration...\n\n");
+            
+            for (int i = 0; i < N; i++) {
+                current_board[i] = rand() % N;
+            }
+            step = 1; 
+        } else {
+            copyBoard(current_board, next_board);
+        }
+    }
+}
+
+int main() {
+    srand(time(NULL));
+
+    printf("Solving %d-Queens using Hill Climbing Search Algorithm\n", N);
+    printf("====================================================\n\n");
+    
+    hillClimbing();
+
+    return 0;
+}

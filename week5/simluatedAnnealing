@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+
+#define N 8
+
+void printBoard(int board[N]) {
+    printf("State: [");
+    for (int i = 0; i < N; i++) {
+        printf("%d", board[i]);
+        if (i < N - 1) printf(", ");
+    }
+    printf("]\n");
+
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            if (board[j] == i)
+                printf(" Q ");
+            else
+                printf(" . ");
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+int calculateCost(int board[N]) {
+    int attacks = 0;
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            if (board[i] == board[j]) {
+                attacks++;
+            }
+            if (abs(board[i] - board[j]) == abs(i - j)) {
+                attacks++;
+            }
+        }
+    }
+    return attacks;
+}
+
+void copyBoard(int dest[N], int src[N]) {
+    for (int i = 0; i < N; i++) {
+        dest[i] = src[i];
+    }
+}
+
+void simulatedAnnealing() {
+    int current_board[N];
+    int next_board[N];
+    int attempt = 1;
+
+    while (1) {
+        double temperature = 1000.0;
+        double cooling_rate = 0.995;
+        int step = 1;
+
+        for (int i = 0; i < N; i++) {
+            current_board[i] = rand() % N;
+        }
+
+        printf("--- STARTING CONFIGURATION (Attempt %d) ---\n", attempt);
+        printBoard(current_board);
+
+        while (temperature > 0.001) {
+            int current_cost = calculateCost(current_board);
+
+            if (current_cost == 0) {
+                printf("--- GOAL CONFIGURATION FOUND (Attempt %d) ---\n", attempt);
+                printBoard(current_board);
+                return;
+            }
+
+            copyBoard(next_board, current_board);
+            int col = rand() % N;
+            int row = rand() % N;
+            while (row == current_board[col]) {
+                row = rand() % N;
+            }
+            next_board[col] = row;
+
+            int next_cost = calculateCost(next_board);
+            int delta_e = next_cost - current_cost;
+
+            if (delta_e < 0) {
+                copyBoard(current_board, next_board);
+            } else {
+                double probability = exp(-delta_e / temperature);
+                double random_val = (double)rand() / RAND_MAX;
+                if (random_val < probability) {
+                    copyBoard(current_board, next_board);
+                }
+            }
+
+            temperature *= cooling_rate;
+            step++;
+        }
+
+        printf("Attempt %d cooled down without solution. Retrying with random restart...\n\n", attempt++);
+    }
+}
+
+int main() {
+    srand(time(NULL));
+
+    printf("Solving %d-Queens using Simulated Annealing Algorithm\n", N);
+    printf("========================================================\n\n");
+
+    simulatedAnnealing();
+
+    return 0;
+}

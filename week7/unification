@@ -1,0 +1,31 @@
+
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    char x[20], y[20];
+
+    printf("Enter first expression: ");
+    scanf("%s", x);
+
+    printf("Enter second expression: ");
+    scanf("%s", y);
+
+    if (strcmp(x, y) == 0) {
+        printf("Expressions are already equal.\n");
+    }
+    else if (x[0] == 'x' && strlen(x) == 1) {
+        printf("Unification Successful\n");
+        printf("MGU: x = %s\n", y);
+    }
+    else if (y[0] == 'x' && strlen(y) == 1) {
+        printf("Unification Successful\n");
+        printf("MGU: x = %s\n", x);
+    }
+    else {
+        printf("Unification Failed\n");
+    }
+
+    return 0;
+}
+

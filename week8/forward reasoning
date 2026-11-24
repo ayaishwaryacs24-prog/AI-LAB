@@ -1,0 +1,30 @@
+#include <stdio.h>
+
+int main()
+{
+    int american = 1;
+    int enemy = 1;
+    int has_missiles = 1;
+    int sold_by_robert = 1;
+    int missile_is_weapon = 1;
+    int hostile, criminal;
+
+    hostile = enemy;
+
+    if (american && missile_is_weapon &&
+        sold_by_robert && has_missiles && hostile)
+    {
+        criminal = 1;
+    }
+    else
+    {
+        criminal = 0;
+    }
+
+    if (criminal)
+        printf("Robert is a criminal.\n");
+    else
+        printf("Robert is not proved to be a criminal.\n");
+
+    return 0;
+}
